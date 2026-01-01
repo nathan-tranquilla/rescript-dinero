@@ -27,7 +27,7 @@ jobs:
       working-directory: ./rescript
       
     - name: Build ReScript
-      run: npm run build
+      run: npm run res:build
       working-directory: ./rescript
 
   typescript:
