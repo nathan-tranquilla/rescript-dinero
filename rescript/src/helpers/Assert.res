@@ -6,7 +6,7 @@
  * 
  * @throws If the condition isn't met.
  */
-let _assert = (condition: bool, message: string) => {
+let \"assert" = (condition: bool, message: string) => {
   if !condition {
     JsError.throwWithMessage("[Dinero.js] " ++ message)
   }

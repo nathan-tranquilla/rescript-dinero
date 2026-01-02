@@ -5,10 +5,10 @@
     "subdirs": true
   },
   "package-specs": {
-    "module": "esmodule",
+    "module": "commonjs",
     "in-source": true
   },
-  "suffix": ".res.mjs",
+  "suffix": ".res.js",
   "dependencies": [],
   "compiler-flags": []
 }
