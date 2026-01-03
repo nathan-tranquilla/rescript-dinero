@@ -1,5 +1,4 @@
 open Calculator
-open Equal
 
 /**
  * Returns an isEven function.
@@ -9,11 +8,10 @@ open Equal
  * @returns The isEven function.
  */
 let isEven = (calculator: calculator<'amount>) => {
-  let equalFn = equal(calculator)
   let zero = calculator.zero()
   let two = calculator.increment(calculator.increment(zero))
 
   (input: 'amount) => {
-    equalFn(calculator.modulo(input, two), zero)
+    calculator.compare(calculator.modulo(input, two), zero) == EQ
   }
 }

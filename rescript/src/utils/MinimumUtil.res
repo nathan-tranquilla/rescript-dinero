@@ -1,5 +1,5 @@
 open Calculator
-open GreaterThan
+open GreaterThanUtil
 
 /**
  * Returns a minimum function.

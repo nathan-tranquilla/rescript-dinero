@@ -1,6 +1,6 @@
 open Calculator
-open Equal
-open LessThan
+open EqualUtil
+open LessThanUtil
 
 /**
  * Returns the absolute value of an amount.

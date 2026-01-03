@@ -1,5 +1,4 @@
 open Calculator
-open Equal
 
 /**
  * Counts trailing zeros in a number with the given base.
@@ -9,16 +8,14 @@ open Equal
  * @returns The countTrailingZeros function.
  */
 let countTrailingZeros = (calculator: calculator<'amount>) => {
-  let equalFn = equal(calculator)
-
   (input: 'amount, base: 'amount) => {
     let zero = calculator.zero()
 
-    if equalFn(zero, input) {
+    if calculator.compare(zero, input) == EQ {
       calculator.zero()
     } else {
       let rec loop = (temp: 'amount, i: 'amount) => {
-        if equalFn(calculator.modulo(temp, base), zero) {
+        if calculator.compare(calculator.modulo(temp, base), zero) == EQ {
           loop(calculator.integerDivide(temp, base), calculator.increment(i))
         } else {
           i

@@ -1,5 +1,4 @@
 open Calculator
-open Equal
 open Absolute
 
 /**
@@ -10,13 +9,12 @@ open Absolute
  * @returns The isHalf function.
  */
 let isHalf = (calculator: calculator<'amount>) => {
-  let equalFn = equal(calculator)
   let absoluteFn = absolute(calculator)
 
   (input: 'amount, total: 'amount) => {
     let remainder = absoluteFn(calculator.modulo(input, total))
     let difference = calculator.subtract(total, remainder)
 
-    equalFn(difference, remainder)
+    calculator.compare(difference, remainder) == EQ
   }
 }

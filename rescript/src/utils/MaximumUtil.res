@@ -1,5 +1,5 @@
 open Calculator
-open LessThan
+open LessThanUtil
 
 /**
  * Returns a maximum function.

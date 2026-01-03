@@ -1,6 +1,4 @@
 open Calculator
-open Equal
-open LessThan
 
 /**
  * Returns the sign of an amount.
@@ -10,8 +8,8 @@ open LessThan
  * @returns The sign function.
  */
 let sign = (calculator: calculator<'amount>) => {
-  let equalFn = equal(calculator)
-  let lessThanFn = lessThan(calculator)
+  let equalFn = EqualUtil.equal(calculator)
+  let lessThanFn = LessThanUtil.lessThan(calculator)
   let zero = calculator.zero()
 
   (input: 'amount) => {

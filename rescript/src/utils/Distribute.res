@@ -1,8 +1,8 @@
 open Calculator
-open Equal
-open GreaterThan
-open LessThan
-open GreaterThanOrEqual
+open EqualUtil
+open GreaterThanUtil
+open LessThanUtil
+open GreaterThanOrEqualUtil
 
 /**
  * Returns a distribute function.

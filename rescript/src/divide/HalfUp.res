@@ -1,7 +1,6 @@
 open DivideOperation
 open Calculator
 open Absolute
-open GreaterThan
 open IsHalf
 open Down
 open Up
@@ -22,7 +21,7 @@ open Up
  * @returns The rounded amount.
  */
 let halfUp: divideOperation<'amount> = (amount, factor, calculator) => {
-  let greaterThanFn = greaterThan(calculator)
+  let greaterThanFn = GreaterThanUtil.greaterThan(calculator)
   let isHalfFn = isHalf(calculator)
   let absoluteFn = absolute(calculator)
 

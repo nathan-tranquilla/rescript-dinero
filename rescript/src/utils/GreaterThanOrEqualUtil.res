@@ -1,6 +1,6 @@
 open Calculator
-open Equal
-open GreaterThan
+open EqualUtil
+open GreaterThanUtil
 
 /**
  * Returns a greaterThanOrEqual function.

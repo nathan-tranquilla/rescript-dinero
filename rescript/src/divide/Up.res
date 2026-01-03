@@ -1,7 +1,7 @@
 open DivideOperation
 open Calculator
-open Equal
-open GreaterThan
+
+
 
 /**
  * Divide and round up.
@@ -15,8 +15,8 @@ open GreaterThan
  * @returns The rounded amount.
  */
 let up: divideOperation<'amount> = (amount, factor, calculator) => {
-  let greaterThanFn = greaterThan(calculator)
-  let equalFn = equal(calculator)
+  let greaterThanFn = GreaterThanUtil.greaterThan(calculator)
+  let equalFn = EqualUtil.equal(calculator)
 
   let zero = calculator.zero()
   let isPositive = greaterThanFn(amount, zero)

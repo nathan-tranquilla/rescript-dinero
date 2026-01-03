@@ -1,5 +1,4 @@
 open DivideOperation
-open Calculator
 open IsHalf
 open Down
 open HalfUp
