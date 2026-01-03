@@ -1,7 +1,7 @@
 type comparisonOperator = 
-  | LT // -1
-  | EQ // 0  
-  | GT // 1
+  | @as(-1) LT
+  | @as(0) EQ  
+  | @as(1) GT
 
 type calculator<'tInput> = {
   add: ('tInput, 'tInput) => 'tInput,
