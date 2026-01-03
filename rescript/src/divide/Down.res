@@ -1,0 +1,32 @@
+open DivideOperation
+open Calculator
+open Equal
+open GreaterThan
+
+/**
+ * Divide and round down.
+ *
+ * Rounding down happens whenever the quotient is not an integer.
+ *
+ * @param amount - The amount to divide.
+ * @param factor - The factor to divide by.
+ * @param calculator - The calculator to use.
+ *
+ * @returns The rounded amount.
+ */
+let down: divideOperation<'amount> = (amount, factor, calculator) => {
+  let greaterThanFn = greaterThan(calculator)
+  let equalFn = equal(calculator)
+
+  let zero = calculator.zero()
+  let isPositive = greaterThanFn(amount, zero)
+  let quotient = calculator.integerDivide(amount, factor)
+  let remainder = calculator.modulo(amount, factor)
+  let isInteger = equalFn(remainder, zero)
+
+  if isPositive || isInteger {
+    quotient
+  } else {
+    calculator.decrement(quotient)
+  }
+}

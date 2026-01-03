@@ -1,5 +1,9 @@
-// External currency type (placeholder for now)
-type currency<'tAmount> = 'tAmount
+// Currency type with proper record structure
+type currency<'tAmount> = {
+  code: string,
+  base: 'tAmount, 
+  exponent: 'tAmount,
+}
 
 type transformerOptions<'tAmount, 'tValue> = {
   value: 'tValue,
