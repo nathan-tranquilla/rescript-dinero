@@ -102,6 +102,26 @@ task :time_rescript => [:rs_install, :clean_rescript] do
     
     module_count = output =~ /Compiled (\d+) modules/ ? $1.to_i : "unknown"
     
-    puts "\nReal Time: #{real_time}s | Compiled Modules: #{module_count}"
+    puts "\nReScript - Real Time: #{real_time}s | Compiled Modules: #{module_count}"
+  end
+end
+
+desc "Time a TypeScript build and capture metrics"
+task :time_typescript => [:ts_install, :clean_typescript] do
+  Dir.chdir("typescript") do
+    # Capture both stdout and stderr including time output
+    output = `{ time npm run build; } 2>&1`
+    # puts output
+    
+    # Parse real time and compiled files
+    if match = output.match(/real\s+\d+m([\d.]+)s/)
+      real_time = match[1].to_f
+    else
+      real_time = "unknown"
+    end
+    
+    # TypeScript doesn't output module count like ReScript, so count files
+    
+    puts "\nTypeScript - Real Time: #{real_time}s"
   end
 end
