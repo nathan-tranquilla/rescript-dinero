@@ -28,12 +28,10 @@ end
 
 # Benchmark functions
 def benchmark_rescript_clean_build_func(quiet: false)
-  puts "🔄 Running #{BUILD_TRIALS} ReScript builds..." unless quiet
   times = []
   modules = []
   
   BUILD_TRIALS.times do |i|
-    print "Build #{i+1}/#{BUILD_TRIALS}... " unless quiet
     
     Rake::Task[:clean_rescript].reenable
     Rake::Task[:clean_rescript].invoke
@@ -42,16 +40,14 @@ def benchmark_rescript_clean_build_func(quiet: false)
     if result[:time]
       times << result[:time]
       modules << result[:modules] if result[:modules]
-      puts "#{result[:time]}s" unless quiet
     else
-      puts "failed" unless quiet
+      puts "failed"
     end
   end
   
   if times.length > 0
     avg_time = times.sum / times.length
     avg_modules = modules.length > 0 ? modules.sum / modules.length : "unknown"
-    puts "\nReScript Build Benchmark: Builds: #{BUILD_TRIALS}, Times: #{times.map{|t| "#{t}s"}.join(",")}, Average Time: #{avg_time.round(3)}s, Average Modules: #{avg_modules}" unless quiet
     { avg_time: avg_time.round(3), trials: BUILD_TRIALS, avg_modules: avg_modules, times: times }
   else
     { avg_time: nil, trials: 0, avg_modules: nil, times: [] }
@@ -59,11 +55,9 @@ def benchmark_rescript_clean_build_func(quiet: false)
 end
 
 def benchmark_typescript_clean_build_func(quiet: false)
-  puts "🔄 Running #{BUILD_TRIALS} TypeScript builds..." unless quiet
   times = []
   
   BUILD_TRIALS.times do |i|
-    print "Build #{i+1}/#{BUILD_TRIALS}... " unless quiet
     
     Rake::Task[:clean_typescript].reenable
     Rake::Task[:clean_typescript].invoke
@@ -71,29 +65,25 @@ def benchmark_typescript_clean_build_func(quiet: false)
     
     if result[:time]
       times << result[:time]
-      puts "#{result[:time]}s" unless quiet
     else
-      puts "failed" unless quiet
+      puts "failed"
     end
   end
   
   if times.length > 0
     avg_time = times.sum / times.length
-    puts "\nTypeScript Build Benchmark: Builds: #{BUILD_TRIALS}, Times: #{times.map{|t| "#{t}s"}.join(",")}, Average Time: #{avg_time.round(3)}s" unless quiet
     { avg_time: avg_time.round(3), trials: BUILD_TRIALS, times: times }
   else
     { avg_time: nil, trials: 0, times: [] }
   end
 end
 
-def benchmark_rescript_incremental_build_func(quiet: false)
-  puts "🔄 Running #{BUILD_TRIALS} incremental ReScript builds..." unless quiet
+def benchmark_rescript_incremental_build_func()
   
   times = []
   modules = []
   
   BUILD_TRIALS.times do |i|
-    print "Incremental #{i+1}/#{BUILD_TRIALS}... " unless quiet
     
     # Make a small edit to Sign.res (leaf file) before timing
     sign_file = "rescript/src/utils/Sign.res"
@@ -116,29 +106,25 @@ def benchmark_rescript_incremental_build_func(quiet: false)
     if result[:time]
       times << result[:time]
       modules << result[:modules] if result[:modules]
-      puts "#{result[:time]}s" unless quiet
     else
-      puts "failed" unless quiet
+      puts "failed"
     end
   end
   
   if times.length > 0
     avg_time = times.sum / times.length
     avg_modules = modules.length > 0 ? modules.sum / modules.length : "unknown"
-    puts "\nReScript Incremental Benchmark: Builds: #{BUILD_TRIALS}, Times: #{times.map{|t| "#{t}s"}.join(",")}, Average Time: #{avg_time.round(3)}s, Average Modules: #{avg_modules}" unless quiet
     { avg_time: avg_time.round(3), trials: BUILD_TRIALS, avg_modules: avg_modules, times: times }
   else
     { avg_time: nil, trials: 0, avg_modules: nil, times: [] }
   end
 end
 
-def benchmark_typescript_incremental_build_func(quiet: false)
-  puts "🔄 Running #{BUILD_TRIALS} incremental TypeScript builds..." unless quiet
+def benchmark_typescript_incremental_build_func()
   
   times = []
   
   BUILD_TRIALS.times do |i|
-    print "Incremental #{i+1}/#{BUILD_TRIALS}... " unless quiet
     
     # Make a small edit to sign.ts (leaf file) before timing
     sign_file = "typescript/src/utils/sign.ts"
@@ -160,15 +146,14 @@ def benchmark_typescript_incremental_build_func(quiet: false)
     
     if result[:time]
       times << result[:time]
-      puts "#{result[:time]}s" unless quiet
     else
-      puts "failed" unless quiet
+      puts "failed"
     end
   end
   
   if times.length > 0
     avg_time = times.sum / times.length
-    puts "\nTypeScript Incremental Benchmark: Builds: #{BUILD_TRIALS}, Times: #{times.map{|t| "#{t}s"}.join(",")}, Average Time: #{avg_time.round(3)}s" unless quiet
+    puts "\nTypeScript Incremental Benchmark: Builds: #{BUILD_TRIALS}, Times: #{times.map{|t| "#{t}s"}.join(",")}, Average Time: #{avg_time.round(3)}s"
     { avg_time: avg_time.round(3), trials: BUILD_TRIALS, times: times }
   else
     { avg_time: nil, trials: 0, times: [] }
@@ -182,20 +167,16 @@ end
 # Install Tasks
 desc "Install ReScript project dependencies"
 task :rs_install do
-  puts "📦 Installing ReScript dependencies..."
   Dir.chdir("rescript") do
     sh "npm install"
   end
-  puts "✅ ReScript dependencies installed"
 end
 
 desc "Install TypeScript project dependencies" 
 task :ts_install do
-  puts "📦 Installing TypeScript dependencies..."
   Dir.chdir("typescript") do
     sh "npm install"
   end
-  puts "✅ TypeScript dependencies installed"
 end
 
 desc "Install dependencies for both projects"
@@ -206,7 +187,6 @@ task :clean => [:clean_rescript, :clean_typescript]
 
 desc "Clean ReScript build artifacts"
 task :clean_rescript => [:rs_install] do
-  puts "🧹 Cleaning ReScript project..."
 
   Dir.chdir("rescript") do 
     sh "npm run res:clean"
@@ -215,28 +195,20 @@ task :clean_rescript => [:rs_install] do
   # Clean ReScript lib directory
   sh "rm -rf rescript/lib" if Dir.exist?("rescript/lib")
   
-  puts "✅ ReScript project cleaned"
 end
 
 desc "Clean TypeScript build artifacts"
 task :clean_typescript => [:ts_install] do
-  puts "🧹 Cleaning TypeScript project..."
   
   Dir.chdir("typescript") do 
     sh "npm run clean"
   end 
-  
-  puts "✅ TypeScript project cleaned"
 end
 
 desc "Clean node_modules from both projects"
 task :clean_deps do
-  puts "🧹 Cleaning node_modules..."
-  
   sh "rm -rf rescript/node_modules" if Dir.exist?("rescript/node_modules")
   sh "rm -rf typescript/node_modules" if Dir.exist?("typescript/node_modules")
-  
-  puts "✅ Dependencies cleaned"
 end
 
 desc "Deep clean - removes all build artifacts and dependencies"
@@ -245,20 +217,16 @@ task :clean_all => [:clean, :clean_deps]
 # Build Tasks
 desc "Build ReScript project"
 task :build_rescript => [:rs_install] do
-  puts "🔨 Building ReScript project..."
   Dir.chdir("rescript") do
     sh "npm run res:build"
   end
-  puts "✅ ReScript build complete"
 end
 
 desc "Build TypeScript project"  
 task :build_typescript => [:ts_install] do
-  puts "🔨 Building TypeScript project..."
   Dir.chdir("typescript") do
     sh "npm run build"
   end
-  puts "✅ TypeScript build complete"
 end
 
 desc "Time a ReScript build and capture metrics"
@@ -327,13 +295,13 @@ task :benchmark do
   if rs_clean[:avg_time] && rs_inc[:avg_time]
     rs_saved = (rs_clean[:avg_time] - rs_inc[:avg_time]).round(3)
     rs_saved_percent = ((rs_saved / rs_clean[:avg_time]) * 100).round(1)
-    puts "   ReScript:  -#{rs_saved}s (#{rs_saved_percent}% faster)"
+    puts "   ReScript:  #{rs_saved}s (#{rs_saved_percent}% faster)"
   end
   
   if ts_clean[:avg_time] && ts_inc[:avg_time]
     ts_saved = (ts_clean[:avg_time] - ts_inc[:avg_time]).round(3)
     ts_saved_percent = ((ts_saved / ts_clean[:avg_time]) * 100).round(1)
-    puts "   TypeScript: -#{ts_saved}s (#{ts_saved_percent}% faster)"
+    puts "   TypeScript: #{ts_saved}s (#{ts_saved_percent}% faster)"
   end
   
   if rs_clean[:avg_time] && ts_clean[:avg_time]
