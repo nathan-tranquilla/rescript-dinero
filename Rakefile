@@ -6,9 +6,11 @@ BUILD_TRIALS = 5
 # Helper method to time a single ReScript build
 def time_single_rescript_build
   Dir.chdir("rescript") do
-    output = `{ time npm run res:build; } 2>&1`
+    start_time = Time.now
+    output = `npm run res:build 2>&1`
+    end_time = Time.now
     
-    time = output.match(/real\s+\d+m([\d.]+)s/) ? $1.to_f : nil
+    time = (end_time - start_time).round(3)
     modules = output =~ /Compiled (\d+) modules/ ? $1.to_i : nil
     
     { time: time, modules: modules }
@@ -18,9 +20,11 @@ end
 # Helper method to time a single TypeScript build
 def time_single_typescript_build
   Dir.chdir("typescript") do
-    output = `{ time npm run build; } 2>&1`
+    start_time = Time.now
+    output = `npm run build 2>&1`
+    end_time = Time.now
     
-    time = output.match(/real\s+\d+m([\d.]+)s/) ? $1.to_f : nil
+    time = (end_time - start_time).round(3)
     
     { time: time }
   end
