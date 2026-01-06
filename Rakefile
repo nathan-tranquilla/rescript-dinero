@@ -1,7 +1,7 @@
 # Rakefile for managing ReScript vs TypeScript benchmark project
 
 # Constants
-BUILD_TRIALS = 20
+BUILD_TRIALS = 10
 
 # Helper method to time a single ReScript build
 def time_single_rescript_build
@@ -298,14 +298,14 @@ task :benchmark do
   puts "\nIncremental Savings vs Clean Builds:"
   if rs_clean[:avg_time] && rs_inc[:avg_time]
     rs_saved = (rs_clean[:avg_time] - rs_inc[:avg_time]).round(3)
-    rs_saved_percent = ((rs_saved / rs_clean[:avg_time]) * 100).round(1)
-    puts "   ReScript:  #{rs_saved}s (#{rs_saved_percent}% faster)"
+    rs_multiplier = (rs_clean[:avg_time] / rs_inc[:avg_time]).round(1)
+    puts "   ReScript:  #{rs_saved}s (#{rs_multiplier}x faster)"
   end
   
   if ts_clean[:avg_time] && ts_inc[:avg_time]
     ts_saved = (ts_clean[:avg_time] - ts_inc[:avg_time]).round(3)
-    ts_saved_percent = ((ts_saved / ts_clean[:avg_time]) * 100).round(1)
-    puts "   TypeScript: #{ts_saved}s (#{ts_saved_percent}% faster)"
+    ts_multiplier = (ts_clean[:avg_time] / ts_inc[:avg_time]).round(1)
+    puts "   TypeScript: #{ts_saved}s (#{ts_multiplier}x faster)"
   end
   
   if rs_clean[:avg_time] && ts_clean[:avg_time]
@@ -313,8 +313,8 @@ task :benchmark do
     clean_loser_time = rs_clean[:avg_time] < ts_clean[:avg_time] ? ts_clean[:avg_time] : rs_clean[:avg_time]
     clean_winner_time = rs_clean[:avg_time] < ts_clean[:avg_time] ? rs_clean[:avg_time] : ts_clean[:avg_time]
     clean_diff = (clean_loser_time - clean_winner_time).round(3)
-    clean_percent = ((clean_diff / clean_loser_time) * 100).round(1)
-    puts "\nClean Build Winner: #{clean_winner} (#{clean_diff}s faster, #{clean_percent}% improvement)"
+    clean_multiplier = (clean_loser_time / clean_winner_time).round(1)
+    puts "\nClean Build Winner: #{clean_winner} (#{clean_diff}s faster, #{clean_multiplier}x faster)"
   end
   
   if rs_inc[:avg_time] && ts_inc[:avg_time]
@@ -322,8 +322,8 @@ task :benchmark do
     inc_loser_time = rs_inc[:avg_time] < ts_inc[:avg_time] ? ts_inc[:avg_time] : rs_inc[:avg_time]
     inc_winner_time = rs_inc[:avg_time] < ts_inc[:avg_time] ? rs_inc[:avg_time] : ts_inc[:avg_time]
     inc_diff = (inc_loser_time - inc_winner_time).round(3)
-    inc_percent = ((inc_diff / inc_loser_time) * 100).round(1)
-    puts "\nIncremental Build Winner: #{inc_winner} (#{inc_diff}s faster, #{inc_percent}% improvement)"
+    inc_multiplier = (inc_loser_time / inc_winner_time).round(1)
+    puts "\nIncremental Build Winner: #{inc_winner} (#{inc_diff}s faster, #{inc_multiplier}x faster)"
   end
   
   puts "\n" + "=" * 60
