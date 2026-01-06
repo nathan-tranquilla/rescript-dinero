@@ -25,6 +25,17 @@ jobs:
       with:
         ruby-version: '3.0'
         
+    - name: Report System Specs
+      run: |
+        echo "=== System Information ==="
+        echo "OS: $(uname -s -r)"
+        echo "CPU: $(nproc) cores"
+        echo "Memory: $(free -h | grep '^Mem:' | awk '{print $2}')"
+        echo "Node.js: $(node --version)"
+        echo "npm: $(npm --version)"
+        echo "Ruby: $(ruby --version)"
+        echo "========================="
+        
     - name: Run Benchmark Suite
       run: rake benchmark
    
