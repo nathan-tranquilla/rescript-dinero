@@ -143,7 +143,7 @@ task :average_rescript => [:rs_install] do
   modules = []
   
   BUILD_TRIALS.times do |i|
-    print "Build #{i+1}/3... "
+    print "Build #{i+1}/#{BUILD_TRIALS}... "
     
     result = time_single_rescript_build
     
@@ -169,7 +169,7 @@ task :average_typescript => [:ts_install] do
   times = []
   
   BUILD_TRIALS.times do |i|
-    print "Build #{i+1}/3... "
+    print "Build #{i+1}/#{BUILD_TRIALS}... "
     
     result = time_single_typescript_build
     
