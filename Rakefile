@@ -27,13 +27,13 @@ def time_single_typescript_build
 end
 
 # Benchmark functions
-def benchmark_rescript_clean_build_func
-  puts "🔄 Running #{BUILD_TRIALS} ReScript builds..."
+def benchmark_rescript_clean_build_func(quiet: false)
+  puts "🔄 Running #{BUILD_TRIALS} ReScript builds..." unless quiet
   times = []
   modules = []
   
   BUILD_TRIALS.times do |i|
-    print "Build #{i+1}/#{BUILD_TRIALS}... "
+    print "Build #{i+1}/#{BUILD_TRIALS}... " unless quiet
     
     Rake::Task[:clean_rescript].reenable
     Rake::Task[:clean_rescript].invoke
@@ -42,28 +42,28 @@ def benchmark_rescript_clean_build_func
     if result[:time]
       times << result[:time]
       modules << result[:modules] if result[:modules]
-      puts "#{result[:time]}s"
+      puts "#{result[:time]}s" unless quiet
     else
-      puts "failed"
+      puts "failed" unless quiet
     end
   end
   
   if times.length > 0
     avg_time = times.sum / times.length
     avg_modules = modules.length > 0 ? modules.sum / modules.length : "unknown"
-    puts "\nReScript Build Benchmark: Builds: #{BUILD_TRIALS}, Times: #{times.map{|t| "#{t}s"}.join(",")}, Average Time: #{avg_time.round(3)}s, Average Modules: #{avg_modules}"
+    puts "\nReScript Build Benchmark: Builds: #{BUILD_TRIALS}, Times: #{times.map{|t| "#{t}s"}.join(",")}, Average Time: #{avg_time.round(3)}s, Average Modules: #{avg_modules}" unless quiet
     { avg_time: avg_time.round(3), trials: BUILD_TRIALS, avg_modules: avg_modules, times: times }
   else
     { avg_time: nil, trials: 0, avg_modules: nil, times: [] }
   end
 end
 
-def benchmark_typescript_clean_build_func
-  puts "🔄 Running #{BUILD_TRIALS} TypeScript builds..."
+def benchmark_typescript_clean_build_func(quiet: false)
+  puts "🔄 Running #{BUILD_TRIALS} TypeScript builds..." unless quiet
   times = []
   
   BUILD_TRIALS.times do |i|
-    print "Build #{i+1}/#{BUILD_TRIALS}... "
+    print "Build #{i+1}/#{BUILD_TRIALS}... " unless quiet
     
     Rake::Task[:clean_typescript].reenable
     Rake::Task[:clean_typescript].invoke
@@ -71,32 +71,35 @@ def benchmark_typescript_clean_build_func
     
     if result[:time]
       times << result[:time]
-      puts "#{result[:time]}s"
+      puts "#{result[:time]}s" unless quiet
     else
-      puts "failed"
+      puts "failed" unless quiet
     end
   end
   
   if times.length > 0
     avg_time = times.sum / times.length
-    puts "\nTypeScript Build Benchmark: Builds: #{BUILD_TRIALS}, Times: #{times.map{|t| "#{t}s"}.join(",")}, Average Time: #{avg_time.round(3)}s"
+    puts "\nTypeScript Build Benchmark: Builds: #{BUILD_TRIALS}, Times: #{times.map{|t| "#{t}s"}.join(",")}, Average Time: #{avg_time.round(3)}s" unless quiet
     { avg_time: avg_time.round(3), trials: BUILD_TRIALS, times: times }
   else
     { avg_time: nil, trials: 0, times: [] }
   end
 end
 
-def benchmark_rescript_incremental_build_func
-  puts "🔄 Running #{BUILD_TRIALS} incremental ReScript builds..."
+def benchmark_rescript_incremental_build_func(quiet: false)
+  puts "🔄 Running #{BUILD_TRIALS} incremental ReScript builds..." unless quiet
+  
   times = []
   modules = []
   
   BUILD_TRIALS.times do |i|
-    print "Incremental #{i+1}/#{BUILD_TRIALS}... "
+    print "Incremental #{i+1}/#{BUILD_TRIALS}... " unless quiet
     
     # Make a small edit to Sign.res (leaf file) before timing
     sign_file = "rescript/src/utils/Sign.res"
     original_content = File.read(sign_file)
+
+    sleep(1)
     
     # Add a temporary function to trigger recompilation
     timestamp = Time.now.to_f
@@ -113,32 +116,35 @@ def benchmark_rescript_incremental_build_func
     if result[:time]
       times << result[:time]
       modules << result[:modules] if result[:modules]
-      puts "#{result[:time]}s"
+      puts "#{result[:time]}s" unless quiet
     else
-      puts "failed"
+      puts "failed" unless quiet
     end
   end
   
   if times.length > 0
     avg_time = times.sum / times.length
     avg_modules = modules.length > 0 ? modules.sum / modules.length : "unknown"
-    puts "\nReScript Incremental Benchmark: Builds: #{BUILD_TRIALS}, Times: #{times.map{|t| "#{t}s"}.join(",")}, Average Time: #{avg_time.round(3)}s, Average Modules: #{avg_modules}"
+    puts "\nReScript Incremental Benchmark: Builds: #{BUILD_TRIALS}, Times: #{times.map{|t| "#{t}s"}.join(",")}, Average Time: #{avg_time.round(3)}s, Average Modules: #{avg_modules}" unless quiet
     { avg_time: avg_time.round(3), trials: BUILD_TRIALS, avg_modules: avg_modules, times: times }
   else
     { avg_time: nil, trials: 0, avg_modules: nil, times: [] }
   end
 end
 
-def benchmark_typescript_incremental_build_func
-  puts "🔄 Running #{BUILD_TRIALS} incremental TypeScript builds..."
+def benchmark_typescript_incremental_build_func(quiet: false)
+  puts "🔄 Running #{BUILD_TRIALS} incremental TypeScript builds..." unless quiet
+  
   times = []
   
   BUILD_TRIALS.times do |i|
-    print "Incremental #{i+1}/#{BUILD_TRIALS}... "
+    print "Incremental #{i+1}/#{BUILD_TRIALS}... " unless quiet
     
     # Make a small edit to sign.ts (leaf file) before timing
     sign_file = "typescript/src/utils/sign.ts"
     original_content = File.read(sign_file)
+
+    sleep(1)
     
     # Add a temporary function to trigger recompilation
     timestamp = Time.now.to_f
@@ -154,15 +160,15 @@ def benchmark_typescript_incremental_build_func
     
     if result[:time]
       times << result[:time]
-      puts "#{result[:time]}s"
+      puts "#{result[:time]}s" unless quiet
     else
-      puts "failed"
+      puts "failed" unless quiet
     end
   end
   
   if times.length > 0
     avg_time = times.sum / times.length
-    puts "\nTypeScript Incremental Benchmark: Builds: #{BUILD_TRIALS}, Times: #{times.map{|t| "#{t}s"}.join(",")}, Average Time: #{avg_time.round(3)}s"
+    puts "\nTypeScript Incremental Benchmark: Builds: #{BUILD_TRIALS}, Times: #{times.map{|t| "#{t}s"}.join(",")}, Average Time: #{avg_time.round(3)}s" unless quiet
     { avg_time: avg_time.round(3), trials: BUILD_TRIALS, times: times }
   else
     { avg_time: nil, trials: 0, times: [] }
@@ -279,181 +285,31 @@ end
 
 desc "Benchmark ReScript clean builds (#{BUILD_TRIALS} trials)"
 task :benchmark_rescript_clean_build => [:rs_install] do
-  puts "🔄 Running #{BUILD_TRIALS} ReScript builds..."
-  times = []
-  modules = []
-  
-  BUILD_TRIALS.times do |i|
-    print "Build #{i+1}/#{BUILD_TRIALS}... "
-    
-    Rake::Task[:clean_rescript].reenable
-    Rake::Task[:clean_rescript].invoke
-    result = time_single_rescript_build
-    
-    if result[:time]
-      times << result[:time]
-      modules << result[:modules] if result[:modules]
-      puts "#{result[:time]}s"
-    else
-      puts "failed"
-    end
-  end
-  
-  if times.length > 0
-    avg_time = times.sum / times.length
-    avg_modules = modules.length > 0 ? modules.sum / modules.length : "unknown"
-    puts "\nReScript Build Benchmark: Builds: #{BUILD_TRIALS}, Times: #{times.map{|t| "#{t}s"}.join(",")}, Average Time: #{avg_time.round(3)}s, Average Modules: #{avg_modules}"
-    
-    # Return metrics for master task
-    { avg_time: avg_time.round(3), trials: BUILD_TRIALS, avg_modules: avg_modules, times: times }
-  else
-    { avg_time: nil, trials: 0, avg_modules: nil, times: [] }
-  end
+  benchmark_rescript_clean_build_func
 end
 
 desc "Benchmark TypeScript clean builds (#{BUILD_TRIALS} trials)"
 task :benchmark_typescript_clean_build => [:ts_install] do
-  puts "🔄 Running #{BUILD_TRIALS} TypeScript builds..."
-  times = []
-  
-  BUILD_TRIALS.times do |i|
-    print "Build #{i+1}/#{BUILD_TRIALS}... "
-    
-    Rake::Task[:clean_typescript].reenable
-    Rake::Task[:clean_typescript].invoke
-    result = time_single_typescript_build
-    
-    if result[:time]
-      times << result[:time]
-      puts "#{result[:time]}s"
-    else
-      puts "failed"
-    end
-  end
-  
-  if times.length > 0
-    avg_time = times.sum / times.length
-    puts "\nTypeScript Build Benchmark: Builds: #{BUILD_TRIALS}, Times: #{times.map{|t| "#{t}s"}.join(",")}, Average Time: #{avg_time.round(3)}s"
-    
-    # Return metrics for master task
-    { avg_time: avg_time.round(3), trials: BUILD_TRIALS, times: times }
-  else
-    { avg_time: nil, trials: 0, times: [] }
-  end
+  benchmark_typescript_clean_build_func
 end
 
 desc "Benchmark ReScript incremental builds (#{BUILD_TRIALS} trials)"
 task :benchmark_rescript_incremental_build => [:rs_install, :clean_rescript, :build_rescript] do
-  puts "🔄 Running #{BUILD_TRIALS} incremental ReScript builds..."
-  times = []
-  modules = []
-  
-  BUILD_TRIALS.times do |i|
-    print "Incremental #{i+1}/#{BUILD_TRIALS}... "
-    
-    # Make a small edit to Sign.res (leaf file) before timing
-    sign_file = "rescript/src/utils/Sign.res"
-    original_content = File.read(sign_file)
-    
-    # Add a comment with timestamp to trigger recompilation
-    timestamp = Time.now.to_f
-    modified_content = original_content + "\n\n// Temporary function added for incremental build test\nlet tempFunction#{timestamp.to_i} = (x) => x + 1\n"
-    
-    File.write(sign_file, modified_content)
-    
-    # Use the timing task which handles chdir
-    result = time_single_rescript_build
-    
-    # Restore original content
-    File.write(sign_file, original_content)
-    
-    if result[:time]
-      times << result[:time]
-      modules << result[:modules] if result[:modules]
-      puts "#{result[:time]}s"
-    else
-      puts "failed"
-    end
-  end
-  
-  if times.length > 0
-    avg_time = times.sum / times.length
-    avg_modules = modules.length > 0 ? modules.sum / modules.length : "unknown"
-    puts "\nReScript Incremental Benchmark: Builds: #{BUILD_TRIALS}, Times: #{times.map{|t| "#{t}s"}.join(",")}, Average Time: #{avg_time.round(3)}s, Average Modules: #{avg_modules}"
-    
-    # Return metrics for master task
-    { avg_time: avg_time.round(3), trials: BUILD_TRIALS, avg_modules: avg_modules, times: times }
-  else
-    { avg_time: nil, trials: 0, avg_modules: nil, times: [] }
-  end
+  benchmark_rescript_incremental_build_func
 end
 
 desc "Benchmark TypeScript incremental builds (#{BUILD_TRIALS} trials)"
 task :benchmark_typescript_incremental_build => [:ts_install, :clean_typescript, :build_typescript] do
-  puts "🔄 Running #{BUILD_TRIALS} incremental TypeScript builds..."
-  times = []
-  
-  BUILD_TRIALS.times do |i|
-    print "Incremental #{i+1}/#{BUILD_TRIALS}... "
-    
-    # Make a small edit to sign.ts (leaf file) before timing
-    sign_file = "typescript/src/utils/sign.ts"
-    original_content = File.read(sign_file)
-    
-    # Add a temporary function to trigger recompilation
-    timestamp = Time.now.to_f
-    modified_content = original_content + "\n\n// Temporary function added for incremental build test\nexport const tempFunction#{timestamp.to_i} = (x: number): number => x + 1;\n"
-    
-    File.write(sign_file, modified_content)
-    
-    # Use the timing task which handles chdir
-    result = time_single_typescript_build
-    
-    # Restore original content
-    File.write(sign_file, original_content)
-    
-    if result[:time]
-      times << result[:time]
-      puts "#{result[:time]}s"
-    else
-      puts "failed"
-    end
-  end
-  
-  if times.length > 0
-    avg_time = times.sum / times.length
-    puts "\nTypeScript Incremental Benchmark: Builds: #{BUILD_TRIALS}, Times: #{times.map{|t| "#{t}s"}.join(",")}, Average Time: #{avg_time.round(3)}s"
-    
-    # Return metrics for master task
-    { avg_time: avg_time.round(3), trials: BUILD_TRIALS, times: times }
-  else
-    { avg_time: nil, trials: 0, times: [] }
-  end
+  benchmark_typescript_incremental_build_func
 end
 
 desc "Run comprehensive benchmark suite - all build performance tests"
 task :benchmark do
-  puts "🚀 Starting comprehensive benchmark suite...\n"
-  
-  puts "=" * 60
-  puts "1/4: RESCRIPT CLEAN BUILD BENCHMARK"
-  puts "=" * 60
-  rs_clean = benchmark_rescript_clean_build_func
-  
-  puts "\n" + "=" * 60
-  puts "2/4: TYPESCRIPT CLEAN BUILD BENCHMARK"
-  puts "=" * 60
-  ts_clean = benchmark_typescript_clean_build_func
-  
-  puts "\n" + "=" * 60
-  puts "3/4: RESCRIPT INCREMENTAL BUILD BENCHMARK"
-  puts "=" * 60
-  rs_inc = benchmark_rescript_incremental_build_func
-  
-  puts "\n" + "=" * 60
-  puts "4/4: TYPESCRIPT INCREMENTAL BUILD BENCHMARK"
-  puts "=" * 60
-  ts_inc = benchmark_typescript_incremental_build_func
+  # Run all benchmarks quietly
+  rs_clean = benchmark_rescript_clean_build_func()
+  ts_clean = benchmark_typescript_clean_build_func()
+  rs_inc = benchmark_rescript_incremental_build_func()
+  ts_inc = benchmark_typescript_incremental_build_func()
   
   puts "\n" + "=" * 60
   puts "📊 BENCHMARK SUMMARY"
