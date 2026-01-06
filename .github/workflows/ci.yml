@@ -7,31 +7,8 @@ on:
     branches: [ main ]
 
 jobs:
-  rescript:
-    name: ReScript Build
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '25'
-        cache: 'npm'
-        cache-dependency-path: rescript/package-lock.json
-        
-    - name: Install dependencies
-      run: npm ci
-      working-directory: ./rescript
-      
-    - name: Build ReScript
-      run: npm run res:build
-      working-directory: ./rescript
-
-  typescript:
-    name: TypeScript Build & Test
+  benchmark:
+    name: Build Performance Benchmark
     runs-on: ubuntu-latest
     
     steps:
@@ -42,23 +19,13 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '18'
-        cache: 'npm'
-        cache-dependency-path: typescript/package-lock.json
         
-    - name: Install dependencies
-      run: npm ci
-      working-directory: ./typescript
-      
-    - name: Type check
-      run: npm run typecheck
-      working-directory: ./typescript
-      
-    - name: Build
-      run: npm run build
-      working-directory: ./typescript
-      
-    - name: Test
-      run: npm run test
-      working-directory: ./typescript
+    - name: Setup Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.0'
+        
+    - name: Run Benchmark Suite
+      run: rake benchmark
    
   
