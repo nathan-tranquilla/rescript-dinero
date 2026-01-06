@@ -1,5 +1,8 @@
 # Rakefile for managing ReScript vs TypeScript benchmark project
 
+# Constants
+BUILD_TRIALS = 3
+
 # Helper method to time a single ReScript build
 def time_single_rescript_build
   Dir.chdir("rescript") do
@@ -133,13 +136,13 @@ task :time_typescript => [:ts_install] do
   end
 end
 
-desc "Average 3 ReScript builds"
+desc "Average #{BUILD_TRIALS} ReScript builds"
 task :average_rescript => [:rs_install] do
-  puts "🔄 Running 3 ReScript builds..."
+  puts "🔄 Running #{BUILD_TRIALS} ReScript builds..."
   times = []
   modules = []
   
-  3.times do |i|
+  BUILD_TRIALS.times do |i|
     print "Build #{i+1}/3... "
     
     result = time_single_rescript_build
@@ -156,16 +159,16 @@ task :average_rescript => [:rs_install] do
   if times.length > 0
     avg_time = times.sum / times.length
     avg_modules = modules.length > 0 ? modules.sum / modules.length : "unknown"
-    puts "\nReScript Build Benchmark: Builds: 3, Times: #{times.map{|t| "#{t}s"}.join(",")}, Average Time: #{avg_time.round(3)}s, Average Modules: #{avg_modules}"
+    puts "\nReScript Build Benchmark: Builds: #{BUILD_TRIALS}, Times: #{times.map{|t| "#{t}s"}.join(",")}, Average Time: #{avg_time.round(3)}s, Average Modules: #{avg_modules}"
   end
 end
 
-desc "Average 3 TypeScript builds"
+desc "Average #{BUILD_TRIALS} TypeScript builds"
 task :average_typescript => [:ts_install] do
-  puts "🔄 Running 3 TypeScript builds..."
+  puts "🔄 Running #{BUILD_TRIALS} TypeScript builds..."
   times = []
   
-  3.times do |i|
+  BUILD_TRIALS.times do |i|
     print "Build #{i+1}/3... "
     
     result = time_single_typescript_build
@@ -180,6 +183,6 @@ task :average_typescript => [:ts_install] do
   
   if times.length > 0
     avg_time = times.sum / times.length
-    puts "\nTypeScript Build Benchmark: Builds: 3, Times: #{times.map{|t| "#{t}s"}.join(",")}, Average Time: #{avg_time.round(3)}s"
+    puts "\nTypeScript Build Benchmark: Builds: #{BUILD_TRIALS}, Times: #{times.map{|t| "#{t}s"}.join(",")}, Average Time: #{avg_time.round(3)}s"
   end
 end
