@@ -6,5 +6,5 @@
  * @returns Whether the value is an array.
  */
 let isArray = (maybeArray: 'a) => {
-  Js.Array.isArray(maybeArray)
+  Array.isArray(maybeArray)
 }

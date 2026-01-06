@@ -12,7 +12,7 @@ let trimScale = (calculator: calculator<'amount>) => {
   
   (dineroObject: dinero<'amount>) => {
     let {amount, currency, scale} = dineroObject.toJSON()
-    let base = computeBaseFn(currency.base)
+    let base = computeBaseFn(ComputeBase.fromValue(currency.base))
     
     let trailingZerosLength = countTrailingZerosFn(amount, base)
     let difference = calculator.subtract(scale, trailingZerosLength)

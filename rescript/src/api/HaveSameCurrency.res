@@ -10,12 +10,11 @@ let haveSameCurrency = (dineroObjects: array<dinero<'amount>>) => {
     let computeBaseFn = ComputeBase.computeBase(firstDinero.calculator)
     let {currency: comparator} = firstDinero.toJSON()
     let equalFn = EqualUtil.equal(firstDinero.calculator)
-    let comparatorBase = computeBaseFn(comparator.base)
+    let comparatorBase = computeBaseFn(ComputeBase.fromValue(comparator.base))
     
     otherDineros->Array.every(d => {
       let {currency: subject} = d.toJSON()
-      let subjectBase = computeBaseFn(subject.base)
-      
+      let subjectBase = computeBaseFn(ComputeBase.fromValue(subject.base))
       subject.code === comparator.code &&
       equalFn(subjectBase, comparatorBase) &&
       equalFn(subject.exponent, comparator.exponent)

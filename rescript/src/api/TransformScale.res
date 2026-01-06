@@ -12,7 +12,7 @@ let transformScale = (calculator: calculator<'amount>) => {
     
     let isLarger = greaterThanFn(newScale, scale)
     let (a, b) = isLarger ? (newScale, scale) : (scale, newScale)
-    let base = computeBaseFn(currency.base)
+    let base = computeBaseFn(ComputeBase.fromValue(currency.base))
     
     let factor = calculator.power(base, calculator.subtract(a, b))
     

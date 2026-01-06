@@ -38,7 +38,7 @@ let toDecimal = (calculator: calculator<'amount>) => {
   (dineroObject: dinero<'amount>, transformer: option<Transformer.transformer<'amount, 'output, string>>) => {
     let {currency, scale} = dineroObject.toJSON()
     
-    let base = computeBaseFn(currency.base)
+    let base = computeBaseFn(ComputeBase.fromValue(currency.base))
     let zero = calculator.zero()
     let ten = Array.make(~length=10, ())->Array.reduce(zero, (acc, _) => calculator.increment(acc))
     

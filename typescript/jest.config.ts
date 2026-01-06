@@ -33,8 +33,6 @@ function createPortedFileMapper() {
   return mappings;
 }
 
-console.log(createPortedFileMapper());
-
 export default {
   preset: 'ts-jest',
   rootDir: './',
