@@ -9,9 +9,16 @@ open Calculator
  */
 let getDivisors = (calculator: calculator<'amount>) => {
   (bases: array<'amount>) => {
-    Js.Array.mapi((_, i) => {
-      let slice = Js.Array.sliceFrom(i, bases)
-      Js.Array.reduce((acc, curr) => calculator.multiply(acc, curr), slice[0], slice)
-    }, bases)
+    bases->Array.reduceWithIndex([], (divisors, _, i) => {
+      let slice = bases->Array.slice(~start=i)
+      switch slice[0] {
+      | Some(first) => {
+          let rest = slice->Array.slice(~start=1)
+          let divisor = rest->Array.reduce(first, (acc, curr) => calculator.multiply(acc, curr))
+          divisors->Array.concat([divisor])
+        }
+      | None => divisors
+      }
+    })
   }
 }
