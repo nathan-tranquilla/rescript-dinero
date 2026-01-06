@@ -184,7 +184,7 @@ def benchmark_incremental(project_name, build_task, file_type, directory)
       puts "    #{build_time.round(3)}s"
       
       # Clean up the random edit
-      # sh "git checkout -- #{edit_file}" rescue nil
+      sh "git checkout -- #{edit_file}" rescue nil
     else
       puts "    Warning: No suitable source file found for editing"
       times << 0.0
