@@ -1,7 +1,7 @@
 # Rakefile for managing ReScript vs TypeScript benchmark project
 
 # Constants
-BUILD_TRIALS = 3
+BUILD_TRIALS = 5
 
 # Helper method to time a single ReScript build
 def time_single_rescript_build
@@ -227,5 +227,43 @@ task :incremental_rescript => [:rs_install, :clean_rescript, :build_rescript] do
     avg_time = times.sum / times.length
     avg_modules = modules.length > 0 ? modules.sum / modules.length : "unknown"
     puts "\nReScript Incremental Benchmark: Builds: #{BUILD_TRIALS}, Times: #{times.map{|t| "#{t}s"}.join(",")}, Average Time: #{avg_time.round(3)}s, Average Modules: #{avg_modules}"
+  end
+end
+
+desc "Average #{BUILD_TRIALS} incremental TypeScript builds"
+task :incremental_typescript => [:ts_install, :clean_typescript, :build_typescript] do
+  puts "🔄 Running #{BUILD_TRIALS} incremental TypeScript builds..."
+  times = []
+  
+  BUILD_TRIALS.times do |i|
+    print "Incremental #{i+1}/#{BUILD_TRIALS}... "
+    
+    # Make a small edit to sign.ts (leaf file) before timing
+    sign_file = "typescript/src/utils/sign.ts"
+    original_content = File.read(sign_file)
+    
+    # Add a temporary function to trigger recompilation
+    timestamp = Time.now.to_f
+    modified_content = original_content + "\n\n// Temporary function added for incremental build test\nexport const tempFunction#{timestamp.to_i} = (x: number): number => x + 1;\n"
+    
+    File.write(sign_file, modified_content)
+    
+    # Use the timing task which handles chdir
+    result = time_single_typescript_build
+    
+    # Restore original content
+    File.write(sign_file, original_content)
+    
+    if result[:time]
+      times << result[:time]
+      puts "#{result[:time]}s"
+    else
+      puts "failed"
+    end
+  end
+  
+  if times.length > 0
+    avg_time = times.sum / times.length
+    puts "\nTypeScript Incremental Benchmark: Builds: #{BUILD_TRIALS}, Times: #{times.map{|t| "#{t}s"}.join(",")}, Average Time: #{avg_time.round(3)}s"
   end
 end
