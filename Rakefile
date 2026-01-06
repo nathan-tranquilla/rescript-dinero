@@ -66,3 +66,88 @@ end
 
 desc "Deep clean - removes all build artifacts and dependencies"
 task :clean_all => [:clean, :clean_deps]
+
+# Build Tasks
+desc "Build ReScript project"
+task :build_rescript => [:rs_install] do
+  puts "🔨 Building ReScript project..."
+  Dir.chdir("rescript") do
+    sh "npm run res:build"
+  end
+  puts "✅ ReScript build complete"
+end
+
+desc "Build TypeScript project"  
+task :build_typescript => [:ts_install] do
+  puts "🔨 Building TypeScript project..."
+  Dir.chdir("typescript") do
+    sh "npm run build"
+  end
+  puts "✅ TypeScript build complete"
+end
+
+# Benchmark Tasks
+def benchmark_project(project_name, clean_task, build_task, build_command, directory)
+  puts "⏱️  Benchmarking #{project_name} build times..."
+  
+  times = []
+  3.times do |i|
+    puts "  Trial #{i + 1}/3..."
+    
+    # Clean before each trial
+    Rake::Task[clean_task].execute
+    
+    # Time the build
+    start_time = Time.now
+    Rake::Task[build_task].execute
+    end_time = Time.now
+    
+    build_time = end_time - start_time
+    times << build_time
+    puts "    #{build_time.round(3)}s"
+  end
+  
+  average = times.sum / times.length
+  puts "📊 #{project_name} average build time: #{average.round(3)}s"
+  average
+end
+
+desc "Benchmark ReScript build time (3 trials, averaged)"
+task :bench_rescript => [:build_rescript] do
+  benchmark_project("ReScript", :clean_rescript, :build_rescript, "res:build", "rescript")
+end
+
+desc "Benchmark TypeScript build time (3 trials, averaged)"
+task :bench_typescript => [:build_typescript] do
+  benchmark_project("TypeScript", :clean_typescript, :build_typescript, "build", "typescript")
+end
+
+desc "Run build time benchmark comparison and declare winner"
+task :benchmark => [:build_rescript, :build_typescript] do
+  puts "🏁 Starting ReScript vs TypeScript build benchmark..."
+  puts "=" * 50
+  
+  # Run ReScript benchmark
+  rescript_time = benchmark_project("ReScript", :clean_rescript, :build_rescript, "res:build", "rescript")
+  
+  puts "\n" + "=" * 50
+  
+  # Run TypeScript benchmark  
+  typescript_time = benchmark_project("TypeScript", :clean_typescript, :build_typescript, "build", "typescript")
+  
+  puts "\n" + "=" * 50
+  puts "🏆 BENCHMARK RESULTS:"
+  puts "  ReScript:   #{rescript_time.round(3)}s"
+  puts "  TypeScript: #{typescript_time.round(3)}s"
+  
+  if rescript_time < typescript_time
+    improvement = ((typescript_time - rescript_time) / typescript_time * 100).round(1)
+    puts "🥇 WINNER: ReScript (#{improvement}% faster!)"
+  elsif typescript_time < rescript_time
+    improvement = ((rescript_time - typescript_time) / rescript_time * 100).round(1)
+    puts "🥇 WINNER: TypeScript (#{improvement}% faster!)"
+  else
+    puts "🤝 TIE: Both have identical build times!"
+  end
+  puts "=" * 50
+end
