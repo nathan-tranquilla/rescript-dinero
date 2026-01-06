@@ -1,7 +1,7 @@
 # Rakefile for managing ReScript vs TypeScript benchmark project
 
 # Constants
-BUILD_TRIALS = 5
+BUILD_TRIALS = 20
 
 # Helper method to time a single ReScript build
 def time_single_rescript_build
