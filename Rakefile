@@ -13,6 +13,18 @@ def time_single_rescript_build
   end
 end
 
+# Helper method to time a single TypeScript build
+def time_single_typescript_build
+  Dir.chdir("typescript") do
+    sh "npm run clean", :verbose => false
+    output = `{ time npm run build; } 2>&1`
+    
+    time = output.match(/real\s+\d+m([\d.]+)s/) ? $1.to_f : nil
+    
+    { time: time }
+  end
+end
+
 task :default do 
   sh "rake --tasks"
 end 
@@ -111,22 +123,13 @@ task :time_rescript => [:rs_install] do
 end
 
 desc "Time a TypeScript build and capture metrics"
-task :time_typescript => [:ts_install, :clean_typescript] do
-  Dir.chdir("typescript") do
-    # Capture both stdout and stderr including time output
-    output = `{ time npm run build; } 2>&1`
-    # puts output
-    
-    # Parse real time and compiled files
-    if match = output.match(/real\s+\d+m([\d.]+)s/)
-      real_time = match[1].to_f
-    else
-      real_time = "unknown"
-    end
-    
-    # TypeScript doesn't output module count like ReScript, so count files
-    
-    puts "\nTypeScript - Real Time: #{real_time}s"
+task :time_typescript => [:ts_install] do
+  result = time_single_typescript_build
+  
+  if result[:time]
+    puts "\nTypeScript - Real Time: #{result[:time]}s"
+  else
+    puts "\nTypeScript build failed or could not parse results"
   end
 end
 
@@ -144,6 +147,7 @@ task :average_rescript => [:rs_install] do
     if result[:time]
       times << result[:time]
       modules << result[:modules] if result[:modules]
+      puts "#{result[:time]}s"
     else
       puts "failed"
     end
@@ -153,5 +157,29 @@ task :average_rescript => [:rs_install] do
     avg_time = times.sum / times.length
     avg_modules = modules.length > 0 ? modules.sum / modules.length : "unknown"
     puts "\nReScript Build Benchmark: Builds: 3, Times: #{times.map{|t| "#{t}s"}.join(",")}, Average Time: #{avg_time.round(3)}s, Average Modules: #{avg_modules}"
+  end
+end
+
+desc "Average 3 TypeScript builds"
+task :average_typescript => [:ts_install] do
+  puts "🔄 Running 3 TypeScript builds..."
+  times = []
+  
+  3.times do |i|
+    print "Build #{i+1}/3... "
+    
+    result = time_single_typescript_build
+    
+    if result[:time]
+      times << result[:time]
+      puts "#{result[:time]}s"
+    else
+      puts "failed"
+    end
+  end
+  
+  if times.length > 0
+    avg_time = times.sum / times.length
+    puts "\nTypeScript Build Benchmark: Builds: 3, Times: #{times.map{|t| "#{t}s"}.join(",")}, Average Time: #{avg_time.round(3)}s"
   end
 end
