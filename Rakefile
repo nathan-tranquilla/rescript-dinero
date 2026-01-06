@@ -4,11 +4,33 @@ task :default do
   sh "rake --tasks"
 end 
 
+# Install Tasks
+desc "Install ReScript project dependencies"
+task :rs_install do
+  puts "📦 Installing ReScript dependencies..."
+  Dir.chdir("rescript") do
+    sh "npm install"
+  end
+  puts "✅ ReScript dependencies installed"
+end
+
+desc "Install TypeScript project dependencies" 
+task :ts_install do
+  puts "📦 Installing TypeScript dependencies..."
+  Dir.chdir("typescript") do
+    sh "npm install"
+  end
+  puts "✅ TypeScript dependencies installed"
+end
+
+desc "Install dependencies for both projects"
+task :install => [:rs_install, :ts_install]
+
 desc "Clean all build artifacts from both projects"
 task :clean => [:clean_rescript, :clean_typescript]
 
 desc "Clean ReScript build artifacts"
-task :clean_rescript do
+task :clean_rescript => [:rs_install] do
   puts "🧹 Cleaning ReScript project..."
 
   Dir.chdir("rescript") do 
@@ -22,7 +44,7 @@ task :clean_rescript do
 end
 
 desc "Clean TypeScript build artifacts"
-task :clean_typescript do
+task :clean_typescript => [:ts_install] do
   puts "🧹 Cleaning TypeScript project..."
   
   Dir.chdir("typescript") do 
