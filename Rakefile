@@ -87,7 +87,7 @@ task :build_typescript => [:ts_install] do
 end
 
 desc "Time a ReScript build and capture metrics"
-task :time_rescript => [:rs_install] do
+task :time_rescript => [:rs_install, :clean_rescript] do
   Dir.chdir("rescript") do
     # Capture both stdout and stderr including time output
     output = `{ time npm run res:build; } 2>&1`
