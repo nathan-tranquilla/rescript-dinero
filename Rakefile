@@ -26,6 +26,149 @@ def time_single_typescript_build
   end
 end
 
+# Benchmark functions
+def benchmark_rescript_clean_build_func
+  puts "🔄 Running #{BUILD_TRIALS} ReScript builds..."
+  times = []
+  modules = []
+  
+  BUILD_TRIALS.times do |i|
+    print "Build #{i+1}/#{BUILD_TRIALS}... "
+    
+    Rake::Task[:clean_rescript].reenable
+    Rake::Task[:clean_rescript].invoke
+    result = time_single_rescript_build
+    
+    if result[:time]
+      times << result[:time]
+      modules << result[:modules] if result[:modules]
+      puts "#{result[:time]}s"
+    else
+      puts "failed"
+    end
+  end
+  
+  if times.length > 0
+    avg_time = times.sum / times.length
+    avg_modules = modules.length > 0 ? modules.sum / modules.length : "unknown"
+    puts "\nReScript Build Benchmark: Builds: #{BUILD_TRIALS}, Times: #{times.map{|t| "#{t}s"}.join(",")}, Average Time: #{avg_time.round(3)}s, Average Modules: #{avg_modules}"
+    { avg_time: avg_time.round(3), trials: BUILD_TRIALS, avg_modules: avg_modules, times: times }
+  else
+    { avg_time: nil, trials: 0, avg_modules: nil, times: [] }
+  end
+end
+
+def benchmark_typescript_clean_build_func
+  puts "🔄 Running #{BUILD_TRIALS} TypeScript builds..."
+  times = []
+  
+  BUILD_TRIALS.times do |i|
+    print "Build #{i+1}/#{BUILD_TRIALS}... "
+    
+    Rake::Task[:clean_typescript].reenable
+    Rake::Task[:clean_typescript].invoke
+    result = time_single_typescript_build
+    
+    if result[:time]
+      times << result[:time]
+      puts "#{result[:time]}s"
+    else
+      puts "failed"
+    end
+  end
+  
+  if times.length > 0
+    avg_time = times.sum / times.length
+    puts "\nTypeScript Build Benchmark: Builds: #{BUILD_TRIALS}, Times: #{times.map{|t| "#{t}s"}.join(",")}, Average Time: #{avg_time.round(3)}s"
+    { avg_time: avg_time.round(3), trials: BUILD_TRIALS, times: times }
+  else
+    { avg_time: nil, trials: 0, times: [] }
+  end
+end
+
+def benchmark_rescript_incremental_build_func
+  puts "🔄 Running #{BUILD_TRIALS} incremental ReScript builds..."
+  times = []
+  modules = []
+  
+  BUILD_TRIALS.times do |i|
+    print "Incremental #{i+1}/#{BUILD_TRIALS}... "
+    
+    # Make a small edit to Sign.res (leaf file) before timing
+    sign_file = "rescript/src/utils/Sign.res"
+    original_content = File.read(sign_file)
+    
+    # Add a temporary function to trigger recompilation
+    timestamp = Time.now.to_f
+    modified_content = original_content + "\n\n// Temporary function added for incremental build test\nlet tempFunction#{timestamp.to_i} = (x) => x + 1\n"
+    
+    File.write(sign_file, modified_content)
+    
+    # Use the timing task which handles chdir
+    result = time_single_rescript_build
+    
+    # Restore original content
+    File.write(sign_file, original_content)
+    
+    if result[:time]
+      times << result[:time]
+      modules << result[:modules] if result[:modules]
+      puts "#{result[:time]}s"
+    else
+      puts "failed"
+    end
+  end
+  
+  if times.length > 0
+    avg_time = times.sum / times.length
+    avg_modules = modules.length > 0 ? modules.sum / modules.length : "unknown"
+    puts "\nReScript Incremental Benchmark: Builds: #{BUILD_TRIALS}, Times: #{times.map{|t| "#{t}s"}.join(",")}, Average Time: #{avg_time.round(3)}s, Average Modules: #{avg_modules}"
+    { avg_time: avg_time.round(3), trials: BUILD_TRIALS, avg_modules: avg_modules, times: times }
+  else
+    { avg_time: nil, trials: 0, avg_modules: nil, times: [] }
+  end
+end
+
+def benchmark_typescript_incremental_build_func
+  puts "🔄 Running #{BUILD_TRIALS} incremental TypeScript builds..."
+  times = []
+  
+  BUILD_TRIALS.times do |i|
+    print "Incremental #{i+1}/#{BUILD_TRIALS}... "
+    
+    # Make a small edit to sign.ts (leaf file) before timing
+    sign_file = "typescript/src/utils/sign.ts"
+    original_content = File.read(sign_file)
+    
+    # Add a temporary function to trigger recompilation
+    timestamp = Time.now.to_f
+    modified_content = original_content + "\n\n// Temporary function added for incremental build test\nexport const tempFunction#{timestamp.to_i} = (x: number): number => x + 1;\n"
+    
+    File.write(sign_file, modified_content)
+    
+    # Use the timing task which handles chdir
+    result = time_single_typescript_build
+    
+    # Restore original content
+    File.write(sign_file, original_content)
+    
+    if result[:time]
+      times << result[:time]
+      puts "#{result[:time]}s"
+    else
+      puts "failed"
+    end
+  end
+  
+  if times.length > 0
+    avg_time = times.sum / times.length
+    puts "\nTypeScript Incremental Benchmark: Builds: #{BUILD_TRIALS}, Times: #{times.map{|t| "#{t}s"}.join(",")}, Average Time: #{avg_time.round(3)}s"
+    { avg_time: avg_time.round(3), trials: BUILD_TRIALS, times: times }
+  else
+    { avg_time: nil, trials: 0, times: [] }
+  end
+end
+
 task :default do 
   sh "rake --tasks"
 end 
@@ -134,8 +277,8 @@ task :time_typescript => [:ts_install, :clean_typescript] do
   end
 end
 
-desc "Average #{BUILD_TRIALS} ReScript builds"
-task :average_rescript => [:rs_install] do
+desc "Benchmark ReScript clean builds (#{BUILD_TRIALS} trials)"
+task :benchmark_rescript_clean_build => [:rs_install] do
   puts "🔄 Running #{BUILD_TRIALS} ReScript builds..."
   times = []
   modules = []
@@ -160,11 +303,16 @@ task :average_rescript => [:rs_install] do
     avg_time = times.sum / times.length
     avg_modules = modules.length > 0 ? modules.sum / modules.length : "unknown"
     puts "\nReScript Build Benchmark: Builds: #{BUILD_TRIALS}, Times: #{times.map{|t| "#{t}s"}.join(",")}, Average Time: #{avg_time.round(3)}s, Average Modules: #{avg_modules}"
+    
+    # Return metrics for master task
+    { avg_time: avg_time.round(3), trials: BUILD_TRIALS, avg_modules: avg_modules, times: times }
+  else
+    { avg_time: nil, trials: 0, avg_modules: nil, times: [] }
   end
 end
 
-desc "Average #{BUILD_TRIALS} TypeScript builds"
-task :average_typescript => [:ts_install] do
+desc "Benchmark TypeScript clean builds (#{BUILD_TRIALS} trials)"
+task :benchmark_typescript_clean_build => [:ts_install] do
   puts "🔄 Running #{BUILD_TRIALS} TypeScript builds..."
   times = []
   
@@ -186,11 +334,16 @@ task :average_typescript => [:ts_install] do
   if times.length > 0
     avg_time = times.sum / times.length
     puts "\nTypeScript Build Benchmark: Builds: #{BUILD_TRIALS}, Times: #{times.map{|t| "#{t}s"}.join(",")}, Average Time: #{avg_time.round(3)}s"
+    
+    # Return metrics for master task
+    { avg_time: avg_time.round(3), trials: BUILD_TRIALS, times: times }
+  else
+    { avg_time: nil, trials: 0, times: [] }
   end
 end
 
-desc "Average #{BUILD_TRIALS} incremental ReScript builds"
-task :incremental_rescript => [:rs_install, :clean_rescript, :build_rescript] do
+desc "Benchmark ReScript incremental builds (#{BUILD_TRIALS} trials)"
+task :benchmark_rescript_incremental_build => [:rs_install, :clean_rescript, :build_rescript] do
   puts "🔄 Running #{BUILD_TRIALS} incremental ReScript builds..."
   times = []
   modules = []
@@ -227,11 +380,16 @@ task :incremental_rescript => [:rs_install, :clean_rescript, :build_rescript] do
     avg_time = times.sum / times.length
     avg_modules = modules.length > 0 ? modules.sum / modules.length : "unknown"
     puts "\nReScript Incremental Benchmark: Builds: #{BUILD_TRIALS}, Times: #{times.map{|t| "#{t}s"}.join(",")}, Average Time: #{avg_time.round(3)}s, Average Modules: #{avg_modules}"
+    
+    # Return metrics for master task
+    { avg_time: avg_time.round(3), trials: BUILD_TRIALS, avg_modules: avg_modules, times: times }
+  else
+    { avg_time: nil, trials: 0, avg_modules: nil, times: [] }
   end
 end
 
-desc "Average #{BUILD_TRIALS} incremental TypeScript builds"
-task :incremental_typescript => [:ts_install, :clean_typescript, :build_typescript] do
+desc "Benchmark TypeScript incremental builds (#{BUILD_TRIALS} trials)"
+task :benchmark_typescript_incremental_build => [:ts_install, :clean_typescript, :build_typescript] do
   puts "🔄 Running #{BUILD_TRIALS} incremental TypeScript builds..."
   times = []
   
@@ -265,5 +423,66 @@ task :incremental_typescript => [:ts_install, :clean_typescript, :build_typescri
   if times.length > 0
     avg_time = times.sum / times.length
     puts "\nTypeScript Incremental Benchmark: Builds: #{BUILD_TRIALS}, Times: #{times.map{|t| "#{t}s"}.join(",")}, Average Time: #{avg_time.round(3)}s"
+    
+    # Return metrics for master task
+    { avg_time: avg_time.round(3), trials: BUILD_TRIALS, times: times }
+  else
+    { avg_time: nil, trials: 0, times: [] }
   end
+end
+
+desc "Run comprehensive benchmark suite - all build performance tests"
+task :benchmark do
+  puts "🚀 Starting comprehensive benchmark suite...\n"
+  
+  puts "=" * 60
+  puts "1/4: RESCRIPT CLEAN BUILD BENCHMARK"
+  puts "=" * 60
+  rs_clean = benchmark_rescript_clean_build_func
+  
+  puts "\n" + "=" * 60
+  puts "2/4: TYPESCRIPT CLEAN BUILD BENCHMARK"
+  puts "=" * 60
+  ts_clean = benchmark_typescript_clean_build_func
+  
+  puts "\n" + "=" * 60
+  puts "3/4: RESCRIPT INCREMENTAL BUILD BENCHMARK"
+  puts "=" * 60
+  rs_inc = benchmark_rescript_incremental_build_func
+  
+  puts "\n" + "=" * 60
+  puts "4/4: TYPESCRIPT INCREMENTAL BUILD BENCHMARK"
+  puts "=" * 60
+  ts_inc = benchmark_typescript_incremental_build_func
+  
+  puts "\n" + "=" * 60
+  puts "📊 BENCHMARK SUMMARY"
+  puts "=" * 60
+  puts "📦 Clean Builds:"
+  puts "   ReScript:  #{rs_clean[:avg_time]}s avg (#{rs_clean[:trials]} trials, #{rs_clean[:avg_modules]} modules)"
+  puts "   TypeScript: #{ts_clean[:avg_time]}s avg (#{ts_clean[:trials]} trials)"
+  
+  puts "\n⚡ Incremental Builds:"
+  puts "   ReScript:  #{rs_inc[:avg_time]}s avg (#{rs_inc[:trials]} trials, #{rs_inc[:avg_modules]} modules)"
+  puts "   TypeScript: #{ts_inc[:avg_time]}s avg (#{ts_inc[:trials]} trials)"
+  
+  if rs_clean[:avg_time] && ts_clean[:avg_time]
+    clean_winner = rs_clean[:avg_time] < ts_clean[:avg_time] ? "ReScript" : "TypeScript"
+    clean_loser_time = rs_clean[:avg_time] < ts_clean[:avg_time] ? ts_clean[:avg_time] : rs_clean[:avg_time]
+    clean_winner_time = rs_clean[:avg_time] < ts_clean[:avg_time] ? rs_clean[:avg_time] : ts_clean[:avg_time]
+    clean_diff = (clean_loser_time - clean_winner_time).round(3)
+    clean_percent = ((clean_diff / clean_loser_time) * 100).round(1)
+    puts "\n🏆 Clean Build Winner: #{clean_winner} (#{clean_diff}s faster, #{clean_percent}% improvement)"
+  end
+  
+  if rs_inc[:avg_time] && ts_inc[:avg_time]
+    inc_winner = rs_inc[:avg_time] < ts_inc[:avg_time] ? "ReScript" : "TypeScript"
+    inc_loser_time = rs_inc[:avg_time] < ts_inc[:avg_time] ? ts_inc[:avg_time] : rs_inc[:avg_time]
+    inc_winner_time = rs_inc[:avg_time] < ts_inc[:avg_time] ? rs_inc[:avg_time] : ts_inc[:avg_time]
+    inc_diff = (inc_loser_time - inc_winner_time).round(3)
+    inc_percent = ((inc_diff / inc_loser_time) * 100).round(1)
+    puts "🏆 Incremental Build Winner: #{inc_winner} (#{inc_diff}s faster, #{inc_percent}% improvement)"
+  end
+  
+  puts "\n" + "=" * 60
 end
