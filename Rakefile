@@ -297,10 +297,21 @@ task :benchmark do
   puts "Running comprehensive benchmark suite with #{trials} trials..."
   
   # Run all benchmarks quietly
+  puts "::group::ReScript Clean Build Tests (#{trials} trials)"
   rs_clean = benchmark_rescript_clean_build_func(trials)
+  puts "::endgroup::"
+  
+  puts "::group::TypeScript Clean Build Tests (#{trials} trials)"
   ts_clean = benchmark_typescript_clean_build_func(trials)
+  puts "::endgroup::"
+  
+  puts "::group::ReScript Incremental Build Tests (#{trials} trials)"
   rs_inc = benchmark_rescript_incremental_build_func(trials)
+  puts "::endgroup::"
+  
+  puts "::group::TypeScript Incremental Build Tests (#{trials} trials)"
   ts_inc = benchmark_typescript_incremental_build_func(trials)
+  puts "::endgroup::"
   
   puts "\n" + "=" * 60
   puts "BENCHMARK SUMMARY"
