@@ -37,6 +37,8 @@ jobs:
         echo "========================="
         
     - name: Run Benchmark Suite
+      env:
+        TRIALS: 20
       run: rake benchmark
    
   
