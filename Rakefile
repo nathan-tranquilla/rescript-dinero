@@ -88,6 +88,8 @@ def benchmark_rescript_incremental_build_func()
   modules = []
   
   BUILD_TRIALS.times do |i|
+
+    puts "Running ReScript Incremental Builds #{i+1}/#{BUILD_TRIALS}"
     
     # Make a small edit to Sign.res (leaf file) before timing
     sign_file = "rescript/src/utils/Sign.res"
@@ -129,6 +131,8 @@ def benchmark_typescript_incremental_build_func()
   times = []
   
   BUILD_TRIALS.times do |i|
+
+    puts "Running TypeScript Incremental Builds #{i+1}/#{BUILD_TRIALS}"
     
     # Make a small edit to sign.ts (leaf file) before timing
     sign_file = "typescript/src/utils/sign.ts"
