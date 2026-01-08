@@ -31,10 +31,10 @@
     "dist/"
   ],
   "scripts": {
-    "build": "tsgo",
-    "typecheck": "tsgo --noEmit",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
     "test": "jest",
-    "clean": "rimraf ./dist"
+    "clean": "rimraf ./dist ./.tsbuildinfo"
   },
   "dependencies": {
     "@dinero.js/currencies": "^2.0.0-alpha.14"
